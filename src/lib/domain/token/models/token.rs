@@ -13,7 +13,7 @@ impl SerialNumber {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
-            panic!("Serial number cannot be empty");
+            Err(SerialNumberEmptyError)
         } else {
             Ok(Self(trimmed.to_string()))
         }
