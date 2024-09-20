@@ -13,4 +13,9 @@ path = "src/lib/lib.rs"
 
 [dependencies]
 actix-web = "4.9.0"
+anyhow = "1.0.89"
+chrono = "0.4.38"
+serde = { version = "1.0.210", features = ["derive", "std"] }
+thiserror = "1.0.63"
 tokio = { version = "1.40.0", features = ["full"] }
+uuid = "1.10.0"
