@@ -9,12 +9,10 @@ pub struct HttpServeApp {
     address: String,
 }
 
-
 #[get("/")]
 async fn index() -> impl Responder {
     "Hello, World!"
 }
-
 
 impl HttpServeApp {
     pub fn new(context: Arc<AppContext>, address: &str) -> Self {

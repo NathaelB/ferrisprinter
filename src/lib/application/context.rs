@@ -6,9 +6,8 @@ impl AppContext {
     }
 }
 
-
 impl Default for AppContext {
-  fn default() -> Self {
-    AppContext::new()
-  }
+    fn default() -> Self {
+        AppContext::new()
+    }
 }
