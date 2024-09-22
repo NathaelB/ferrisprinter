@@ -7,6 +7,7 @@ pub trait RefreshTokenService: Clone + Send + Sync + 'static {
     fn create_refresh_token(
         &self,
         token: &str,
+        serial_number: &str,
     ) -> impl Future<Output = Result<RefreshToken, CreateRefreshTokenError>> + Send;
 }
 
@@ -19,5 +20,6 @@ pub trait RefreshTokenRepository: Send + Sync + Clone + 'static {
     fn create_refresh_token(
         &self,
         token: &str,
+        serial_number: &str,
     ) -> impl Future<Output = Result<RefreshToken, CreateRefreshTokenError>> + Send;
 }

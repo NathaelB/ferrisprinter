@@ -29,10 +29,11 @@ where
     async fn create_refresh_token(
         &self,
         token: &str,
+        serial_number: &str,
     ) -> Result<RefreshToken, CreateRefreshTokenError> {
         let t = self
             .refresh_token_repository
-            .create_refresh_token(token)
+            .create_refresh_token(token, serial_number)
             .await?;
 
         Ok(t)
