@@ -18,6 +18,10 @@ impl SerialNumber {
             Ok(Self(trimmed.to_string()))
         }
     }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl Display for SerialNumber {
@@ -42,5 +46,9 @@ impl Token {
         } else {
             Ok(Self(trimmed.to_string()))
         }
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
     }
 }
