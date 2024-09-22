@@ -32,3 +32,15 @@ pub struct Token(String);
 #[derive(Clone, Debug, Error)]
 #[error("Token cannot be empty")]
 pub struct TokenEmptyError;
+
+impl Token {
+    pub fn new(value: &str) -> Result<Token, TokenEmptyError> {
+        let trimmed = value.trim();
+
+        if trimmed.is_empty() {
+            Err(TokenEmptyError)
+        } else {
+            Ok(Self(trimmed.to_string()))
+        }
+    }
+}
