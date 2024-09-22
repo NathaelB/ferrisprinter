@@ -2,7 +2,7 @@ use std::future::Future;
 
 use crate::domain::token::models::refresh_token::{CreateRefreshTokenError, RefreshToken};
 
-pub trait RefreshTokenService: Clone + Send + Sync {
+pub trait RefreshTokenService: Clone + Send + Sync + 'static {
     /// Asynchronously creates a new [RefreshToken].
     fn create_refresh_token(
         &self,
@@ -10,7 +10,7 @@ pub trait RefreshTokenService: Clone + Send + Sync {
     ) -> impl Future<Output = Result<RefreshToken, CreateRefreshTokenError>> + Send;
 }
 
-pub trait RefreshTokenRepository: Send + Sync + Clone {
+pub trait RefreshTokenRepository: Send + Sync + Clone + 'static {
     /// Asynchronously creates a new [RefreshToken].
     ///
     /// # Errors
