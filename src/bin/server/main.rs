@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use clap::Parser;
 use ferrisprinter::{
     application::http::{HttpServer, HttpServerConfig},
     domain::token::service::RefreshTokenServiceImpl,
+    env::Env,
     infrastructure::{
         db::postgres::Postgres,
         token::postgres::refresh_token_repository::PostgresRefreshTokenRepository,
@@ -12,12 +14,15 @@ use ferrisprinter::{
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv::dotenv().ok();
     tracing_subscriber::fmt::init();
-    let postgres =
-        Postgres::new("postgres://postgres:postgres@localhost:5432/ferrisprinter").await?;
+
+    let env = Arc::new(Env::parse());
+
+    let postgres = Postgres::new(Arc::clone(&env)).await?;
 
     let postgres = Arc::new(postgres);
-    let server_config = HttpServerConfig { port: "3333" };
+    let server_config = HttpServerConfig { port: &env.port };
 
     let refresh_token_repository = PostgresRefreshTokenRepository::new(Arc::clone(&postgres));
 

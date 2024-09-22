@@ -3,16 +3,18 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::sync::Arc;
 use tracing::info;
 
+use crate::env::Env;
+
 #[derive(Debug, Clone)]
 pub struct Postgres {
     pub pool: Arc<PgPool>,
 }
 
 impl Postgres {
-    pub async fn new(database_url: &str) -> Result<Self> {
+    pub async fn new(env: Arc<Env>) -> Result<Self> {
         let pool = PgPoolOptions::new()
             .max_connections(5)
-            .connect(database_url)
+            .connect(&env.database_url)
             .await
             .context("Failed to connect to the Postgres database")?;
 

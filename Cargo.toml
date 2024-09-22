@@ -15,7 +15,9 @@ path = "src/lib/lib.rs"
 anyhow = "1.0.89"
 axum = "0.7.6"
 chrono = { version = "0.4.38", features = ["serde"] }
+clap = { version = "4.5.18", features = ["derive", "env"] }
 derive_more = "0.99.17"
+dotenv = "0.15.0"
 serde = { version = "1.0.210", features = ["derive", "std"] }
 sqlx = { version = "0.8.2", features = ["macros", "postgres", "runtime-tokio", "runtime-tokio-native-tls", "time", "uuid"] }
 thiserror = "1.0.63"
