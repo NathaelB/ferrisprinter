@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 use derive_more::From;
+use time::OffsetDateTime;
 
 use super::token::{SerialNumber, Token};
 
@@ -9,8 +10,8 @@ pub struct RefreshToken {
     pub id: uuid::Uuid,
     pub serial_number: SerialNumber,
     pub token: Token,
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub updated_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: time::OffsetDateTime,
+    pub updated_at: time::OffsetDateTime,
 }
 
 impl RefreshToken {
@@ -18,8 +19,8 @@ impl RefreshToken {
         id: uuid::Uuid,
         serial_number: SerialNumber,
         token: Token,
-        created_at: chrono::DateTime<chrono::Utc>,
-        updated_at: chrono::DateTime<chrono::Utc>,
+        created_at: time::OffsetDateTime,
+        updated_at: time::OffsetDateTime,
     ) -> Self {
         Self {
             id,
@@ -29,6 +30,15 @@ impl RefreshToken {
             updated_at,
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From)]
+pub struct RefreshTokenRow {
+    pub id: uuid::Uuid,
+    pub serial_number: String,
+    pub token: String,
+    pub created_at: OffsetDateTime,
+    pub updated_at: OffsetDateTime,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From)]
@@ -64,7 +74,8 @@ pub enum CreateRefreshTokenError {
     DatabaseError(#[from] sqlx::Error),
 }
 
+#[derive(Debug, Error)]
 pub enum FindRefreshTokenError {
-    #[error("Token with serial number {name} not found")]
-    NotFound { name: SerialNumber },
+    #[error("Token with serial number {serial_number} not found")]
+    NotFound { serial_number: SerialNumber },
 }

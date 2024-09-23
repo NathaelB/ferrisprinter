@@ -1,11 +1,12 @@
 use std::sync::Arc;
-
 use time::OffsetDateTime;
+use tracing::info;
 
+use crate::domain::token::models::refresh_token::FindRefreshTokenError;
 use crate::{
     domain::token::{
         models::{
-            refresh_token::{CreateRefreshTokenError, RefreshToken},
+            refresh_token::{CreateRefreshTokenError, RefreshToken, RefreshTokenRow},
             token::{SerialNumber, Token},
         },
         ports::refresh_token::RefreshTokenRepository,
@@ -36,30 +37,47 @@ impl RefreshTokenRepository for PostgresRefreshTokenRepository {
             uuid,
             SerialNumber::new(serial_number).unwrap(),
             Token::new(token).unwrap(),
-            chrono::Utc::now(),
-            chrono::Utc::now(),
+            OffsetDateTime::now_utc(),
+            OffsetDateTime::now_utc(),
         );
 
-        let created_at = chrono_to_offset(refresh_token.created_at);
-        let updated_at = chrono_to_offset(refresh_token.updated_at);
-
-        let _result = sqlx::query_as!(
+        sqlx::query_as!(
             RefreshToken,
             r#"INSERT INTO refresh_tokens (id, serial_number, token, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)"#,
             refresh_token.id,
             refresh_token.serial_number.as_str(),
             refresh_token.token.as_str(),
-            created_at,
-            updated_at,
+            refresh_token.created_at,
+            refresh_token.updated_at,
         ).execute(&*self.postgres.get_pool())
-        .await
-        .map_err(|_| CreateRefreshTokenError::DatabaseError);
+        .await?;
+
+        info!("Created refresh token: {:?}", refresh_token);
 
         Ok(refresh_token)
     }
-}
 
-fn chrono_to_offset(dt: chrono::DateTime<chrono::Utc>) -> OffsetDateTime {
-    let naive = dt.naive_utc();
-    OffsetDateTime::from_unix_timestamp(naive.and_utc().timestamp()).unwrap()
+    async fn find_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> Result<RefreshToken, FindRefreshTokenError> {
+        let row = sqlx::query_as!(
+            RefreshTokenRow,
+            r#"SELECT id, serial_number, token, created_at, updated_at FROM refresh_tokens WHERE serial_number=$1"#,
+            serial_number,
+        ).fetch_one(&*self.postgres.get_pool()).await
+            .map_err(|_| FindRefreshTokenError::NotFound { serial_number: SerialNumber::new(serial_number).unwrap() });
+
+        let row = row.unwrap();
+
+        let refresh_token = RefreshToken::new(
+            row.id,
+            SerialNumber::new(&row.serial_number).unwrap(),
+            Token::new(&row.token).unwrap(),
+            row.created_at,
+            row.updated_at,
+        );
+
+        Ok(refresh_token)
+    }
 }
