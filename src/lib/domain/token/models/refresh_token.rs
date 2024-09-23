@@ -63,3 +63,8 @@ pub enum CreateRefreshTokenError {
     #[error("Database error: {0}")]
     DatabaseError(#[from] sqlx::Error),
 }
+
+pub enum FindRefreshTokenError {
+    #[error("Token with serial number {name} not found")]
+    NotFound { name: SerialNumber },
+}
