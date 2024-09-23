@@ -1,5 +1,5 @@
 use super::{
-    models::refresh_token::{CreateRefreshTokenError, RefreshToken},
+    models::refresh_token::{CreateRefreshTokenError, FindRefreshTokenError, RefreshToken},
     ports::refresh_token::{RefreshTokenRepository, RefreshTokenService},
 };
 
@@ -31,11 +31,17 @@ where
         token: &str,
         serial_number: &str,
     ) -> Result<RefreshToken, CreateRefreshTokenError> {
-        let t = self
-            .refresh_token_repository
+        self.refresh_token_repository
             .create_refresh_token(token, serial_number)
-            .await?;
+            .await
+    }
 
-        Ok(t)
+    async fn find_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> Result<RefreshToken, FindRefreshTokenError> {
+        self.refresh_token_repository
+            .find_by_serial_number(serial_number)
+            .await
     }
 }
