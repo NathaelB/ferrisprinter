@@ -1,6 +1,6 @@
 use anyhow::Context;
-use axum::{routing::post, Router};
-use handlers::create_refresh_token::create_refresh_token;
+use axum::{routing::{get, post}, Router};
+use handlers::{create_refresh_token::create_refresh_token, get_refresh_token::get_refresh_token};
 use std::sync::Arc;
 use tokio::net;
 use tracing::{info, info_span};
@@ -16,7 +16,7 @@ pub struct HttpServerConfig<'a> {
 }
 
 #[derive(Debug, Clone)]
-struct AppState<RefreshToken> {
+struct AppState<RefreshToken: RefreshTokenService> {
     refresh_token_service: Arc<RefreshToken>,
 }
 
@@ -71,4 +71,5 @@ where
     RefreshToken: RefreshTokenService + Send + Sync + 'static,
 {
     Router::new().route("/tokens", post(create_refresh_token))
+    .route("/tokens/:token_id", get(get_refresh_token))
 }
