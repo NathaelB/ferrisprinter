@@ -24,3 +24,12 @@ where
         self.providers.get(provider_type)
     }
 }
+
+impl<P> Default for TokenProviderManager<P>
+where
+    P: ProviderTokenService,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
