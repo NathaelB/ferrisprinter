@@ -9,6 +9,7 @@ use crate::domain::token::{
     ports::provider_token_service::ProviderTokenService,
 };
 
+#[derive(Debug, Clone)]
 pub struct BambuLabProviderTokenService {
     http_client: Client,
     #[allow(dead_code)]
