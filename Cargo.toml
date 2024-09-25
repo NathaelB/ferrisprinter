@@ -16,8 +16,11 @@ anyhow = "1.0.89"
 axum = "0.7.6"
 chrono = { version = "0.4.38", features = ["serde"] }
 clap = { version = "4.5.18", features = ["derive", "env"] }
+cookie = "0.18.1"
 derive_more = "0.99.17"
 dotenv = "0.15.0"
+httpmock = "0.7.0"
+reqwest = { version = "0.12.7", features = ["cookies", "json"] }
 serde = { version = "1.0.210", features = ["derive", "std"] }
 sqlx = { version = "0.8.2", features = ["macros", "postgres", "runtime-tokio", "runtime-tokio-native-tls", "time", "uuid"] }
 thiserror = "1.0.63"
