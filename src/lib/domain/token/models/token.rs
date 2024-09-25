@@ -63,4 +63,8 @@ pub struct Tokens {
 pub enum CreateTokensError {
     #[error("The provider was not found")]
     ProviderNotFound,
+    #[error("The provider returned an error")]
+    ProviderError,
+    #[error("The token is invalid")]
+    InvalidToken,
 }
