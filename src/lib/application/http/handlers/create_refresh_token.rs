@@ -5,6 +5,7 @@ use thiserror::Error;
 use tracing::{error, info};
 
 use crate::domain::token::models::refresh_token::CreateRefreshTokenRequest;
+use crate::domain::token::ports::provider_token_service::ProviderType;
 use crate::{
     application::http::AppState,
     domain::token::{
@@ -33,7 +34,8 @@ impl From<CreateRefreshTokenError> for ApiError {
             CreateRefreshTokenError::DatabaseError(cause) => {
                 error!("{:?}", cause);
                 Self::InternalServerError("Internal server error".to_string())
-            }
+            },
+            _ => Self::InternalServerError("Internal server error".to_string()),
         }
     }
 }
@@ -127,7 +129,8 @@ impl From<&RefreshToken> for CreateRefreshTokenResponseData {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct CreateRefreshTokenHttpRequestBody {
-    token: String,
+    username: String,
+    password: String,
     serial_number: String,
 }
 
@@ -143,10 +146,9 @@ impl CreateRefreshTokenHttpRequestBody {
     fn try_into_domain(
         self,
     ) -> Result<CreateRefreshTokenRequest, ParseCreateRefreshTokenHttpRequestBodyError> {
-        let token = Token::new(&self.token)?;
         let serial_number = SerialNumber::new(&self.serial_number)?;
 
-        Ok(CreateRefreshTokenRequest::new(token, serial_number))
+        Ok(CreateRefreshTokenRequest::new(self.username, self.password, serial_number))
     }
 }
 
@@ -159,8 +161,10 @@ pub async fn create_refresh_token<R: RefreshTokenService>(
     state
         .refresh_token_service
         .create_refresh_token(
-            domain_request.token().as_str(),
+            domain_request.username().to_string(),
+            domain_request.password().to_string(),
             domain_request.serial_number().as_str(),
+            ProviderType::BambuLab,
         )
         .await
         .map_err(ApiError::from)

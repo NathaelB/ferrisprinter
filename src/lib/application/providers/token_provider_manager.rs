@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::domain::token::ports::provider_token_service::{ProviderTokenService, ProviderType};
 
+#[derive(Debug, Clone)]
 pub struct TokenProviderManager<P> {
     providers: HashMap<ProviderType, P>,
 }
