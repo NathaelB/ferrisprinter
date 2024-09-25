@@ -6,7 +6,7 @@ use crate::domain::token::models::token::{CreateTokensError, Tokens};
 pub enum ProviderType {
     BambuLab,
 }
-pub trait ProviderTokenService {
+pub trait ProviderTokenService: Send + Sync + Clone + 'static {
     fn authenticate(
         &self,
         username: String,

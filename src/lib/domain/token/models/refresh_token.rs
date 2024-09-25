@@ -43,14 +43,16 @@ pub struct RefreshTokenRow {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, From)]
 pub struct CreateRefreshTokenRequest {
-    token: Token,
+    username: String,
+    password: String,
     serial_number: SerialNumber,
 }
 
 impl CreateRefreshTokenRequest {
-    pub fn new(token: Token, serial_number: SerialNumber) -> Self {
+    pub fn new(username: String, password: String, serial_number: SerialNumber) -> Self {
         Self {
-            token,
+            username,
+            password,
             serial_number,
         }
     }
@@ -59,8 +61,12 @@ impl CreateRefreshTokenRequest {
         &self.serial_number
     }
 
-    pub fn token(&self) -> &Token {
-        &self.token
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+
+    pub fn password(&self) -> &str {
+        &self.password
     }
 }
 
@@ -72,6 +78,8 @@ pub enum CreateRefreshTokenError {
     Unknown(#[from] anyhow::Error),
     #[error("Database error: {0}")]
     DatabaseError(#[from] sqlx::Error),
+    #[error("Token provider not found")]
+    ProviderNotFound,
 }
 
 #[derive(Debug, Error)]
