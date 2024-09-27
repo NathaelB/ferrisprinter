@@ -52,7 +52,10 @@ impl RefreshTokenRepository for PostgresRefreshTokenRepository {
         ).execute(&*self.postgres.get_pool())
         .await?;
 
-        info!("Creation of a refresh token for the next serial_number: {}", serial_number);
+        info!(
+            "Creation of a refresh token for the next serial_number: {}",
+            serial_number
+        );
 
         Ok(refresh_token)
     }

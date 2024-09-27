@@ -34,7 +34,7 @@ impl From<CreateRefreshTokenError> for ApiError {
             CreateRefreshTokenError::DatabaseError(cause) => {
                 error!("{:?}", cause);
                 Self::InternalServerError("Internal server error".to_string())
-            },
+            }
             _ => Self::InternalServerError("Internal server error".to_string()),
         }
     }
@@ -148,7 +148,11 @@ impl CreateRefreshTokenHttpRequestBody {
     ) -> Result<CreateRefreshTokenRequest, ParseCreateRefreshTokenHttpRequestBodyError> {
         let serial_number = SerialNumber::new(&self.serial_number)?;
 
-        Ok(CreateRefreshTokenRequest::new(self.username, self.password, serial_number))
+        Ok(CreateRefreshTokenRequest::new(
+            self.username,
+            self.password,
+            serial_number,
+        ))
     }
 }
 

@@ -2,10 +2,13 @@ use reqwest::{
     header::{CONTENT_TYPE, USER_AGENT},
     Client,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::domain::token::{
-    models::token::{CreateTokensError, Token, Tokens},
+    models::{
+        refresh_token,
+        token::{CreateTokensError, Token, Tokens},
+    },
     ports::provider_token_service::ProviderTokenService,
 };
 
@@ -46,6 +49,19 @@ struct AuthPayload {
     password: String,
 }
 
+#[derive(Serialize)]
+struct RefreshTokenRequestPayload {
+    refresh_token: String,
+}
+
+#[derive(Serialize, Debug, Deserialize)]
+struct RefreshTokenResponse {
+    #[serde(rename = "refreshToken")]
+    refresh_token: String,
+    #[serde(rename = "accessToken")]
+    access_token: String,
+}
+
 impl ProviderTokenService for BambuLabProviderTokenService {
     async fn authenticate(
         &self,
@@ -79,6 +95,34 @@ impl ProviderTokenService for BambuLabProviderTokenService {
             Token::new(&refresh_token).map_err(|_| CreateTokensError::InvalidToken)?;
         let access_token =
             Token::new(&access_token).map_err(|_| CreateTokensError::InvalidToken)?;
+
+        Ok(Tokens {
+            access_token,
+            refresh_token,
+        })
+    }
+
+    async fn renew_tokens(&self, refresh_token: String) -> Result<Tokens, CreateTokensError> {
+        let uri = format!("{}/v1/user-service/user/refreshtoken", self.api_url);
+
+        let payload = RefreshTokenRequestPayload { refresh_token };
+
+        let response = self
+            .http_client
+            .post(&uri)
+            .header(USER_AGENT, "ferris-printer")
+            .header(CONTENT_TYPE, "application/json")
+            .json(&payload)
+            .send()
+            .await
+            .map_err(|_| CreateTokensError::InvalidToken)?;
+
+        let response_result: RefreshTokenResponse = response.json().await.unwrap();
+
+        let refresh_token = Token::new(&response_result.refresh_token)
+            .map_err(|_| CreateTokensError::InvalidToken)?;
+        let access_token = Token::new(&response_result.access_token)
+            .map_err(|_| CreateTokensError::InvalidToken)?;
 
         Ok(Tokens {
             access_token,

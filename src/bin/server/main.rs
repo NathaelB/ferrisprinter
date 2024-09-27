@@ -3,9 +3,12 @@ use std::sync::Arc;
 use anyhow::Result;
 use clap::Parser;
 use ferrisprinter::{
-    application::{http::{HttpServer, HttpServerConfig}, providers::token_provider_manager::{self, TokenProviderManager}},
+    application::{
+        http::{HttpServer, HttpServerConfig},
+        providers::token_provider_manager::{self, TokenProviderManager},
+    },
     domain::token::{
-        ports::provider_token_service::ProviderType, service::RefreshTokenServiceImpl
+        ports::provider_token_service::ProviderType, service::RefreshTokenServiceImpl,
     },
     env::Env,
     infrastructure::{
@@ -39,7 +42,10 @@ async fn main() -> Result<()> {
 
     let refresh_token_repository = PostgresRefreshTokenRepository::new(Arc::clone(&postgres));
 
-    let refresh_token_service = RefreshTokenServiceImpl::new(refresh_token_repository, Arc::clone(&token_provider_manager));
+    let refresh_token_service = RefreshTokenServiceImpl::new(
+        refresh_token_repository,
+        Arc::clone(&token_provider_manager),
+    );
 
     let http_server = HttpServer::new(Arc::new(refresh_token_service), server_config).await?;
 
