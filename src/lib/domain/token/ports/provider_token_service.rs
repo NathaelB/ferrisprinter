@@ -12,4 +12,8 @@ pub trait ProviderTokenService: Send + Sync + Clone + 'static {
         username: String,
         password: String,
     ) -> impl Future<Output = Result<Tokens, CreateTokensError>> + Send;
+    fn renew_tokens(
+        &self,
+        refresh_token: String,
+    ) -> impl Future<Output = Result<Tokens, CreateTokensError>> + Send;
 }
