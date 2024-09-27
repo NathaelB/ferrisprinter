@@ -4,12 +4,16 @@ use crate::domain::token::models::refresh_token::{
     CreateRefreshTokenError, FindRefreshTokenError, RefreshToken,
 };
 
+use super::provider_token_service::ProviderType;
+
 pub trait RefreshTokenService: Clone + Send + Sync + 'static {
     /// Asynchronously creates a new [RefreshToken].
     fn create_refresh_token(
         &self,
-        token: &str,
+        username: String,
+        password: String,
         serial_number: &str,
+        provider_type: ProviderType,
     ) -> impl Future<Output = Result<RefreshToken, CreateRefreshTokenError>> + Send;
     fn find_by_serial_number(
         &self,

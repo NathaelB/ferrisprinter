@@ -52,3 +52,19 @@ impl Token {
         &self.0
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Tokens {
+    pub access_token: Token,
+    pub refresh_token: Token,
+}
+
+#[derive(Debug, Error)]
+pub enum CreateTokensError {
+    #[error("The provider was not found")]
+    ProviderNotFound,
+    #[error("The provider returned an error")]
+    ProviderError,
+    #[error("The token is invalid")]
+    InvalidToken,
+}
