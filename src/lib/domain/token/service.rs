@@ -65,7 +65,12 @@ where
 
         let tokens = provider.authenticate(username, password).await.unwrap();
 
-        let _ = self.access_token_service
+
+        let _ = self.access_token_service.delete_by_serial_number(serial_number).await;
+        let _ = self.refresh_token_repository.delete_by_serial_number(serial_number).await;
+
+        let _ = self
+            .access_token_service
             .create_access_token(tokens.access_token.as_str(), serial_number)
             .await;
         self.refresh_token_repository

@@ -35,4 +35,10 @@ where
             .create_access_token(token, serial_number)
             .await
     }
+
+    async fn delete_by_serial_number(&self, serial_number: &str) -> Result<(), AccessTokenError> {
+        self.access_token_repository
+            .delete_by_serial_number(serial_number)
+            .await
+    }
 }

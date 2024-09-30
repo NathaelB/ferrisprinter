@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     domain::token::{
         models::{
-            access_token::{AccessToken, AccessTokenError},
+            access_token::{AccessToken, AccessTokenError, AccessTokenRow},
             token::{SerialNumber, Token},
         },
         ports::access_token::AccessTokenRepository,
@@ -59,5 +59,45 @@ impl AccessTokenRepository for PostgresAccessTokenRepository {
         );
 
         Ok(access_token)
+    }
+
+    async fn find_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> Result<AccessToken, AccessTokenError> {
+        let row = sqlx::query_as!(
+            AccessTokenRow,
+            r#"SELECT id, serial_number, token, created_at, updated_at FROM access_tokens WHERE serial_number = $1"#,
+            serial_number
+        )
+        .fetch_one(&*self.postgres.get_pool())
+        .await
+        .map_err(|_| AccessTokenError::NotFound {
+            serial_number: SerialNumber::new(serial_number).unwrap(),
+        });
+
+        let row = row.unwrap();
+
+        let access_token = AccessToken::new(
+            row.id,
+            SerialNumber::new(row.serial_number.as_str()).unwrap(),
+            Token::new(row.token.as_str()).unwrap(),
+            row.created_at,
+            row.updated_at,
+        );
+
+        Ok(access_token)
+    }
+
+    async fn delete_by_serial_number(&self, serial_number: &str) -> Result<(), AccessTokenError> {
+        sqlx::query!(
+            r#"DELETE FROM access_tokens WHERE serial_number = $1"#,
+            serial_number
+        )
+        .execute(&*self.postgres.get_pool())
+        .await
+        .map_err(|e| AccessTokenError::DatabaseError(e))?;
+
+        Ok(())
     }
 }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use time::OffsetDateTime;
 use tracing::info;
 
-use crate::domain::token::models::refresh_token::FindRefreshTokenError;
+use crate::domain::token::models::refresh_token::{FindRefreshTokenError, RefreshTokenError};
 use crate::{
     domain::token::{
         models::{
@@ -82,5 +82,25 @@ impl RefreshTokenRepository for PostgresRefreshTokenRepository {
         );
 
         Ok(refresh_token)
+    }
+
+    async fn delete_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> Result<(), crate::domain::token::models::refresh_token::RefreshTokenError> {
+        sqlx::query!(
+            r#"DELETE FROM refresh_tokens WHERE serial_number = $1"#,
+            serial_number
+        )
+        .execute(&*self.postgres.get_pool())
+        .await
+        .map_err(|e| RefreshTokenError::DatabaseError(e))?;
+
+        info!(
+            "Deletion of a refresh token for the next serial_number: {}",
+            serial_number
+        );
+
+        Ok(())
     }
 }
