@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use crate::domain::token::models::refresh_token::{
-    CreateRefreshTokenError, FindRefreshTokenError, RefreshToken,
+    CreateRefreshTokenError, FindRefreshTokenError, RefreshToken, RefreshTokenError,
 };
 
 use super::provider_token_service::ProviderType;
@@ -36,4 +36,8 @@ pub trait RefreshTokenRepository: Send + Sync + Clone + 'static {
         &self,
         serial_number: &str,
     ) -> impl Future<Output = Result<RefreshToken, FindRefreshTokenError>> + Send;
+    fn delete_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> impl Future<Output = Result<(), RefreshTokenError>> + Send;
 }

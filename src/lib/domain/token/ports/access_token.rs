@@ -8,6 +8,10 @@ pub trait AccessTokenService: Clone + Send + Sync + 'static {
         token: &str,
         serial_number: &str,
     ) -> impl Future<Output = Result<AccessToken, AccessTokenError>> + Send;
+    fn delete_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> impl Future<Output = Result<(), AccessTokenError>> + Send;
 }
 pub trait AccessTokenRepository: Send + Sync + Clone + 'static {
     fn create_access_token(
@@ -15,4 +19,13 @@ pub trait AccessTokenRepository: Send + Sync + Clone + 'static {
         token: &str,
         serial_number: &str,
     ) -> impl Future<Output = Result<AccessToken, AccessTokenError>> + Send;
+
+    fn find_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> impl Future<Output = Result<AccessToken, AccessTokenError>> + Send;
+    fn delete_by_serial_number(
+        &self,
+        serial_number: &str,
+    ) -> impl Future<Output = Result<(), AccessTokenError>> + Send;
 }
