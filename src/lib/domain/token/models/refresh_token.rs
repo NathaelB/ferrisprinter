@@ -87,3 +87,9 @@ pub enum FindRefreshTokenError {
     #[error("Token with serial number {serial_number} not found")]
     NotFound { serial_number: SerialNumber },
 }
+
+#[derive(Debug, Error)]
+pub enum RefreshTokenError {
+    #[error("Database error: {0}")]
+    DatabaseError(#[from] sqlx::Error),
+}

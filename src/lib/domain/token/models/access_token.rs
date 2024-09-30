@@ -44,4 +44,6 @@ pub enum AccessTokenError {
     NotFound { serial_number: SerialNumber },
     #[error("Error creating access token")]
     CreateError,
+    #[error("Database error: {0}")]
+    DatabaseError(#[from] sqlx::Error),
 }
