@@ -5,10 +5,7 @@ use reqwest::{
 use serde::{Deserialize, Serialize};
 
 use crate::domain::token::{
-    models::{
-        refresh_token,
-        token::{CreateTokensError, Token, Tokens},
-    },
+    models::token::{CreateTokensError, Token, Tokens},
     ports::provider_token_service::ProviderTokenService,
 };
 
