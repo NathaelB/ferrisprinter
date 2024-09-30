@@ -1,6 +1,9 @@
+use std::sync::Arc;
+
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    Extension,
 };
 use serde::Serialize;
 
@@ -16,13 +19,10 @@ pub struct GetRefreshTokenResponseData {
 }
 
 pub async fn get_refresh_token<R: RefreshTokenService>(
-    State(state): State<AppState<R>>,
+    Extension(refresh_token_service): Extension<Arc<R>>,
     Path(token_id): Path<String>,
 ) -> Result<ApiSuccess<GetRefreshTokenResponseData>, ApiError> {
-    let refresh_token = state
-        .refresh_token_service
-        .find_by_serial_number(&token_id)
-        .await;
+    let refresh_token = refresh_token_service.find_by_serial_number(&token_id).await;
 
     match refresh_token {
         Ok(refresh_token) => {
