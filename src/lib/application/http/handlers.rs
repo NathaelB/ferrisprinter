@@ -4,6 +4,7 @@ use serde::Serialize;
 
 pub mod create_refresh_token;
 pub mod get_refresh_token;
+pub mod sync_filament;
 
 pub struct ApiSuccess<T: Serialize + PartialEq>(StatusCode, Json<ApiResponseBody<T>>);
 

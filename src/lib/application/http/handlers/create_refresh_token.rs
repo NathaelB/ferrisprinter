@@ -1,4 +1,7 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use std::sync::Arc;
+
+use axum::Extension;
+use axum::{http::StatusCode, response::IntoResponse, Json};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -6,15 +9,12 @@ use tracing::{error, info};
 
 use crate::domain::token::models::refresh_token::CreateRefreshTokenRequest;
 use crate::domain::token::ports::provider_token_service::ProviderType;
-use crate::{
-    application::http::AppState,
-    domain::token::{
-        models::{
-            refresh_token::{CreateRefreshTokenError, RefreshToken},
-            token::{SerialNumber, SerialNumberEmptyError, Token, TokenEmptyError},
-        },
-        ports::refresh_token::RefreshTokenService,
+use crate::domain::token::{
+    models::{
+        refresh_token::{CreateRefreshTokenError, RefreshToken},
+        token::{SerialNumber, SerialNumberEmptyError, TokenEmptyError},
     },
+    ports::refresh_token::RefreshTokenService,
 };
 
 use super::{ApiError, ApiSuccess};
@@ -157,13 +157,12 @@ impl CreateRefreshTokenHttpRequestBody {
 }
 
 pub async fn create_refresh_token<R: RefreshTokenService>(
-    State(state): State<AppState<R>>,
+    Extension(refresh_token_service): Extension<Arc<R>>,
     Json(body): Json<CreateRefreshTokenHttpRequestBody>,
 ) -> Result<ApiSuccess<CreateRefreshTokenResponseData>, ApiError> {
     let domain_request = body.try_into_domain()?;
 
-    state
-        .refresh_token_service
+    refresh_token_service
         .create_refresh_token(
             domain_request.username().to_string(),
             domain_request.password().to_string(),
