@@ -5,16 +5,20 @@ use clap::Parser;
 use ferrisprinter::{
     application::{
         http::{HttpServer, HttpServerConfig},
-        providers::token_provider_manager::{self, TokenProviderManager},
+        providers::token_provider_manager::TokenProviderManager,
     },
     domain::token::{
         ports::provider_token_service::ProviderType, service::RefreshTokenServiceImpl,
+        services::access_token_service::AccessTokenServiceImpl,
     },
     env::Env,
     infrastructure::{
         db::postgres::Postgres,
         token::{
-            postgres::refresh_token_repository::PostgresRefreshTokenRepository,
+            postgres::{
+                access_token_repository::PostgresAccessTokenRepository,
+                refresh_token_repository::PostgresRefreshTokenRepository,
+            },
             providers::bambulab_provider::BambuLabProviderTokenService,
         },
     },
@@ -41,13 +45,25 @@ async fn main() -> Result<()> {
     let token_provider_manager = Arc::new(token_provider_manager);
 
     let refresh_token_repository = PostgresRefreshTokenRepository::new(Arc::clone(&postgres));
+    let access_token_repository = PostgresAccessTokenRepository::new(Arc::clone(&postgres));
+
+    let access_token_service = AccessTokenServiceImpl::new(access_token_repository);
+
+    let access_token_service = Arc::new(access_token_service);
 
     let refresh_token_service = RefreshTokenServiceImpl::new(
         refresh_token_repository,
+        Arc::clone(&access_token_service),
         Arc::clone(&token_provider_manager),
+
     );
 
-    let http_server = HttpServer::new(Arc::new(refresh_token_service), server_config).await?;
+    let http_server = HttpServer::new(
+        Arc::new(refresh_token_service),
+        Arc::clone(&access_token_service),
+        server_config,
+    )
+    .await?;
 
     http_server.run().await
 }
